@@ -1,0 +1,88 @@
+# setTimeout() is NOT JavaScript
+
+Most developers think this:
+
+```js id="w7w9qb"
+setTimeout(() => {
+  console.log("Hello");
+}, 2000);
+```
+
+starts a timer inside JavaScript.
+
+It doesn’t.
+
+JavaScript engines like V8 have NO built-in timer system.
+
+So what actually happens?
+
+## Behind the scenes
+
+When `setTimeout()` is called:
+
+1. V8 receives the function call
+2. It delegates the timer work to the browser/runtime
+3. Browser bindings invoke native C++ code
+4. The OS handles the actual timer
+5. Once completed, the callback is pushed into the task queue
+6. The event loop moves it back into JavaScript execution
+
+Simplified internal flow:
+
+```cpp id="p6f34u"
+void SetTimeoutCallback(args) {
+  StartTimer(delay, [=]() {
+    task_queue.push(jsCallback);
+  });
+}
+```
+
+This means the timer itself is running outside the JS engine entirely.
+
+---
+
+# Same concept applies to:
+
+| API                  | Actually handled by                  |
+| -------------------- | ------------------------------------ |
+| `fetch()`            | Native C++ networking layer          |
+| `addEventListener()` | OS/browser event system              |
+| `console.log()`      | Native stdout/console implementation |
+| `Math.random()`      | Native random generator              |
+
+---
+
+# Important Insight
+
+V8 only executes JavaScript.
+
+Most Web APIs and Node.js APIs are implemented by:
+
+* Browsers
+* Node.js runtime
+* OS-level system libraries
+
+Mostly written in C/C++.
+
+That’s why JavaScript can remain:
+
+✔ Single-threaded
+✔ Non-blocking
+✔ Asynchronous
+
+Because the heavy work happens outside the JS engine.
+
+The event loop simply coordinates completed tasks back into JavaScript execution.
+
+---
+
+Understanding this changes how you think about:
+
+* Event Loop
+* Async/Await
+* Promises
+* Browser APIs
+* Node.js internals
+* Runtime architecture
+
+#javascript #nodejs #v8 #webdevelopment #programming #softwareengineering #backend #frontend #codewithishwar
